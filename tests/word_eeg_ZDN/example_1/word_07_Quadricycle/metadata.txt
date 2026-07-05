@@ -1,0 +1,9 @@
+Word index: 7
+Word text: Quadricycle
+Bounding box (x1,y1,x2,y2): [464.0, 75.0, 565.0, 94.0]
+Num fixations: 2
+EEG shape (channels x samples): (105, 229)
+Channels: 105
+EEG file: eeg.npy  (concatenated across all fixations)
+  fixation_0.npy: shape (105, 82)
+  fixation_1.npy: shape (105, 147)

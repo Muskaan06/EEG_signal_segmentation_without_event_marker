@@ -1,0 +1,8 @@
+Word index: 5
+Word text: engineer
+Bounding box (x1,y1,x2,y2): [319.0, 75.0, 393.0, 94.0]
+Num fixations: 1
+EEG shape (channels x samples): (105, 150)
+Channels: 105
+EEG file: eeg.npy  (concatenated across all fixations)
+  fixation_0.npy: shape (105, 150)

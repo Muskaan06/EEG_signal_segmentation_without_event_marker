@@ -1,0 +1,8 @@
+Word index: 2
+Word text: Ford
+Bounding box (x1,y1,x2,y2): [170.0, 75.0, 208.046875, 90.0]
+Num fixations: 1
+EEG shape (channels x samples): (105, 137)
+Channels: 105
+EEG file: eeg.npy  (concatenated across all fixations)
+  fixation_0.npy: shape (105, 137)

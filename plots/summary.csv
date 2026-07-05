@@ -1,0 +1,4 @@
+subject,label,n_fix,n_words,dur_ms,gt_acc,pca_dim
+ZAB_NR1_EEG,S26 (6152ms)  [26 GT fix],37,31,6152,96.2,10
+ZAB_NR1_EEG,S29 (2930ms)  [11 GT fix],18,15,2930,90.9,10
+ZAB_NR1_EEG,S37 (5172ms)  [22 GT fix],31,21,5172,90.9,10

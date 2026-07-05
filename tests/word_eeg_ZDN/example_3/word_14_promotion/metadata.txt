@@ -1,0 +1,8 @@
+Word index: 14
+Word text: promotion
+Bounding box (x1,y1,x2,y2): [402.953125, 135.0, 488.0, 154.0]
+Num fixations: 1
+EEG shape (channels x samples): (105, 131)
+Channels: 105
+EEG file: eeg.npy  (concatenated across all fixations)
+  fixation_0.npy: shape (105, 131)

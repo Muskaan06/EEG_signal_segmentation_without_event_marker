@@ -1,0 +1,12 @@
+Word index: 24
+Word text: October
+Bounding box (x1,y1,x2,y2): [373.0, 195.0, 443.0, 210.0]
+Num fixations: 5
+EEG shape (channels x samples): (105, 681)
+Channels: 105
+EEG file: eeg.npy  (concatenated across all fixations)
+  fixation_0.npy: shape (105, 159)
+  fixation_1.npy: shape (105, 177)
+  fixation_2.npy: shape (105, 114)
+  fixation_3.npy: shape (105, 150)
+  fixation_4.npy: shape (105, 81)

@@ -1,0 +1,7 @@
+Word index: 9
+Word text: Illuminating
+Bounding box (x1,y1,x2,y2): [92.0, 135.0, 185.046875, 154.0]
+Num fixations: 0
+EEG shape (channels x samples): (105, 0)
+Channels: 105
+EEG file: eeg.npy  (concatenated across all fixations)

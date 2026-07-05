@@ -1,0 +1,8 @@
+Word index: 11
+Word text: Henry
+Bounding box (x1,y1,x2,y2): [172.0, 136.0, 221.25, 154.0]
+Num fixations: 1
+EEG shape (channels x samples): (105, 86)
+Channels: 105
+EEG file: eeg.npy  (concatenated across all fixations)
+  fixation_0.npy: shape (105, 86)

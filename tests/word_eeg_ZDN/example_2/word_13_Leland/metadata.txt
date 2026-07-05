@@ -1,0 +1,11 @@
+Word index: 13
+Word text: Leland
+Bounding box (x1,y1,x2,y2): [258.0, 135.0, 313.046875, 150.0]
+Num fixations: 4
+EEG shape (channels x samples): (105, 308)
+Channels: 105
+EEG file: eeg.npy  (concatenated across all fixations)
+  fixation_0.npy: shape (105, 80)
+  fixation_1.npy: shape (105, 103)
+  fixation_2.npy: shape (105, 56)
+  fixation_3.npy: shape (105, 69)

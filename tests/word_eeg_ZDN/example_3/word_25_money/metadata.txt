@@ -1,0 +1,7 @@
+Word index: 25
+Word text: money
+Bounding box (x1,y1,x2,y2): [361.9375, 199.0, 419.25, 214.0]
+Num fixations: 0
+EEG shape (channels x samples): (105, 0)
+Channels: 105
+EEG file: eeg.npy  (concatenated across all fixations)

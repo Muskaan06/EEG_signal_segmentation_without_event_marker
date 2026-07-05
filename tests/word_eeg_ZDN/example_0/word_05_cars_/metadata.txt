@@ -1,0 +1,8 @@
+Word index: 5
+Word text: cars,
+Bounding box (x1,y1,x2,y2): [302.0, 79.0, 343.0, 93.0]
+Num fixations: 1
+EEG shape (channels x samples): (105, 62)
+Channels: 105
+EEG file: eeg.npy  (concatenated across all fixations)
+  fixation_0.npy: shape (105, 62)

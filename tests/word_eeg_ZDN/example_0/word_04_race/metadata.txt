@@ -1,0 +1,7 @@
+Word index: 4
+Word text: race
+Bounding box (x1,y1,x2,y2): [256.9375, 79.0, 294.0, 90.0]
+Num fixations: 0
+EEG shape (channels x samples): (105, 0)
+Channels: 105
+EEG file: eeg.npy  (concatenated across all fixations)
