@@ -1,0 +1,7 @@
+roi,n_clusters,n_significant,min_p
+occipital,8,2,0.009
+vwfa,11,1,0.01
+pstg,7,0,0.162
+wernicke,4,0,0.193
+broca,4,0,0.131
+parietal,7,0,0.109

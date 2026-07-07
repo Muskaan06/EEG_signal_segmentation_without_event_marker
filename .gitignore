@@ -1,1 +1,8 @@
 results/
+outputs/cleaned_eeg/
+outputs/epochs/
+outputs/models/
+outputs/figures/
+outputs/alignment/
+__pycache__/
+*.pyc
