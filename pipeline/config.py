@@ -108,3 +108,25 @@ CONNECTIVITY_PAIRS = [
     ("parietal", "pstg"),
     ("parietal", "wernicke"),
 ]
+
+# ── Word-reading-event detection (VWFA -> Wernicke confirmation) ────────────
+# Exploratory/empirical: the "three distinct VWFA signal levels" (low = no
+# word, medium-high = word read, very-high = word not understood) is a
+# hypothesis being tested here, not an established finding. See
+# pipeline/word_detection.py module docstring.
+VWFA_BAND = (1.0, 30.0)                 # Hz sub-band of BANDPASS for envelope
+SIGNAL_LEVEL_WINDOW_MS = 60             # envelope smoothing window
+MIN_SUSTAINED_MS = 40                   # min run length to count as a candidate
+VWFA_REFRACTORY_MS = 250                # min spacing between accepted candidates
+VWFA_WERNICKE_LAG_MS_RANGE = (100, 150) # confirmation search window after VWFA peak
+WORD_MARKER_HALF_WINDOW_MS = 200        # -> 400ms total marker window
+
+# Local (small-sample, no true resting/no-word reference) calibration:
+# within-distribution percentiles pooled across all available word segments.
+LOCAL_CALIB_LOW_PCT = 40
+LOCAL_CALIB_HIGH_PCT = 90
+
+# Future, full-dataset calibration: non_reading-epoch vs reading-epoch (N170
+# window) percentiles, once continuous raw data + epochs.py labels exist.
+BASELINE_CALIB_LOW_PCT = 90
+BASELINE_CALIB_HIGH_PCT = 97.5

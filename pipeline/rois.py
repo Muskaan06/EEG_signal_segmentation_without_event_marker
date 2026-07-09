@@ -34,6 +34,13 @@ ROI_TARGETS = {
 
 MAX_ROI_RADIUS_M = 0.035
 
+# Per-ROI radius overrides: "wernicke" is unusually sparse (2 channels) at the
+# default radius, which is too thin to serve as an independent confirmation
+# signal for word_detection.py's VWFA->Wernicke check. Widen just this one.
+ROI_RADIUS_OVERRIDES = {
+    "wernicke": 0.045,
+}
+
 # Channels ZuCo's own pipeline drops (outer face/neck ring + periocular);
 # excluded from ROI assignment since they carry mostly EOG/muscle, not cortex.
 PERIOCULAR_OUTER_RING = {
@@ -50,8 +57,9 @@ def _montage_positions():
 
 
 def compute_roi_channels(ch_names=None, save=True):
-    """Assign each scalp channel to its nearest ROI target (within
-    MAX_ROI_RADIUS_M), returning {roi_name: [channel_labels]}.
+    """Assign each scalp channel to its nearest ROI target (within that ROI's
+    radius — MAX_ROI_RADIUS_M by default, overridden per-ROI by
+    ROI_RADIUS_OVERRIDES), returning {roi_name: [channel_labels]}.
     """
     positions = _montage_positions()
     if ch_names is not None:
@@ -59,12 +67,13 @@ def compute_roi_channels(ch_names=None, save=True):
 
     roi_names = list(ROI_TARGETS.keys())
     targets = np.array([ROI_TARGETS[r] for r in roi_names])
+    radii = np.array([ROI_RADIUS_OVERRIDES.get(r, MAX_ROI_RADIUS_M) for r in roi_names])
 
     roi_channels = {r: [] for r in roi_names}
     for name, xyz in positions.items():
         dists = np.linalg.norm(targets - xyz, axis=1)
         best = np.argmin(dists)
-        if dists[best] <= MAX_ROI_RADIUS_M:
+        if dists[best] <= radii[best]:
             roi_channels[roi_names[best]].append(name)
 
     for r in roi_names:
