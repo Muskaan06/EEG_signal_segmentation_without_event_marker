@@ -7,3 +7,4 @@ outputs/alignment/
 __pycache__/
 *.pyc
 .venv_worddetect/
+data_YHS/
