@@ -1,9 +1,0 @@
-Word index: 18
-Word text: test-drove
-Bounding box (x1,y1,x2,y2): [117.765625, 195.0, 205.0, 210.0]
-Num fixations: 2
-EEG shape (channels x samples): (105, 187)
-Channels: 105
-EEG file: eeg.npy  (concatenated across all fixations)
-  fixation_0.npy: shape (105, 91)
-  fixation_1.npy: shape (105, 96)

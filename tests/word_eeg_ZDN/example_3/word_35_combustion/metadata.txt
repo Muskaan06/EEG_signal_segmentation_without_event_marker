@@ -1,8 +1,0 @@
-Word index: 35
-Word text: combustion
-Bounding box (x1,y1,x2,y2): [380.0, 255.0, 477.0, 270.0]
-Num fixations: 1
-EEG shape (channels x samples): (105, 102)
-Channels: 105
-EEG file: eeg.npy  (concatenated across all fixations)
-  fixation_0.npy: shape (105, 102)

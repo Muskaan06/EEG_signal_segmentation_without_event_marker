@@ -1,8 +1,0 @@
-Word index: 22
-Word text: Cadillac.
-Bounding box (x1,y1,x2,y2): [228.0, 195.0, 299.0, 210.0]
-Num fixations: 1
-EEG shape (channels x samples): (105, 136)
-Channels: 105
-EEG file: eeg.npy  (concatenated across all fixations)
-  fixation_0.npy: shape (105, 136)

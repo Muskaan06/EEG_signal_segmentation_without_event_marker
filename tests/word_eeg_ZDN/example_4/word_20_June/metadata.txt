@@ -1,7 +1,0 @@
-Word index: 20
-Word text: June
-Bounding box (x1,y1,x2,y2): [239.0, 196.0, 279.0, 210.0]
-Num fixations: 0
-EEG shape (channels x samples): (105, 0)
-Channels: 105
-EEG file: eeg.npy  (concatenated across all fixations)

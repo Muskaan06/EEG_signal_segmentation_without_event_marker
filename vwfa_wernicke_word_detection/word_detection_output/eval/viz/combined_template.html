@@ -1,0 +1,439 @@
+<title>VWFA-only vs. VWFA + Wernicke-ERP (union) — per-subject accuracy</title>
+<style>
+:root {
+  --surface-1:      #fcfcfb; --surface-2:      #f5f5f2; --page:           #f0f0ec;
+  --text-primary:   #14140f; --text-secondary: #55544c; --text-muted:     #8b8a7f;
+  --gridline:       #e3e2da; --baseline:       #c7c6ba; --border:         rgba(20,20,15,0.10);
+  --accent:         #2a5fb0; --accent-soft:    rgba(42,95,176,0.10);
+  --series-vwfa:    #8b8a7f; --series-combined: #2a5fb0; --series-erp: #1b8a6b;
+  --good:           #0ca30c; --good-bg:        rgba(12,163,12,0.13);
+  --warning:        #a86a00; --warning-bg:     rgba(201,133,0,0.14);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --surface-1:      #17181a; --surface-2:      #1e2023; --page:           #101113;
+    --text-primary:   #f3f3ef; --text-secondary: #b8b7ad; --text-muted:     #83827a;
+    --gridline:       #2b2d30; --baseline:       #3a3c40; --border:         rgba(255,255,255,0.10);
+    --accent:         #6fa3ea; --accent-soft:    rgba(111,163,234,0.14);
+    --series-vwfa:    #83827a; --series-combined: #6fa3ea; --series-erp: #4fc79a;
+    --good:           #17c317; --good-bg:        rgba(23,195,23,0.16);
+    --warning:        #e0a629; --warning-bg:     rgba(250,178,25,0.16);
+  }
+}
+:root[data-theme="dark"] {
+  --surface-1:      #17181a; --surface-2:      #1e2023; --page:           #101113;
+  --text-primary:   #f3f3ef; --text-secondary: #b8b7ad; --text-muted:     #83827a;
+  --gridline:       #2b2d30; --baseline:       #3a3c40; --border:         rgba(255,255,255,0.10);
+  --accent:         #6fa3ea; --accent-soft:    rgba(111,163,234,0.14);
+  --series-vwfa:    #83827a; --series-combined: #6fa3ea; --series-erp: #4fc79a;
+  --good:           #17c317; --good-bg:        rgba(23,195,23,0.16);
+  --warning:        #e0a629; --warning-bg:     rgba(250,178,25,0.16);
+}
+:root[data-theme="light"] {
+  --surface-1:      #fcfcfb; --surface-2:      #f5f5f2; --page:           #f0f0ec;
+  --text-primary:   #14140f; --text-secondary: #55544c; --text-muted:     #8b8a7f;
+  --gridline:       #e3e2da; --baseline:       #c7c6ba; --border:         rgba(20,20,15,0.10);
+  --accent:         #2a5fb0; --accent-soft:    rgba(42,95,176,0.10);
+  --series-vwfa:    #8b8a7f; --series-combined: #2a5fb0; --series-erp: #1b8a6b;
+  --good:           #0ca30c; --good-bg:        rgba(12,163,12,0.13);
+  --warning:        #a86a00; --warning-bg:     rgba(201,133,0,0.14);
+}
+
+* { box-sizing: border-box; }
+body { background: var(--page); color: var(--text-primary); font-family: system-ui, -apple-system, "Segoe UI", sans-serif; margin: 0; }
+.wrap { max-width: 1080px; margin: 0 auto; padding: 36px 22px 72px; display: flex; flex-direction: column; gap: 18px; }
+
+.eyebrow { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); }
+h1 { font-size: 22px; font-weight: 700; margin: 4px 0 0; text-wrap: balance; letter-spacing: -0.01em; }
+.dek { color: var(--text-secondary); font-size: 13.5px; line-height: 1.55; max-width: 78ch; margin: 6px 0 0; }
+code { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: 0.92em; background: var(--surface-2); padding: 1px 5px; border-radius: 4px; border: 1px solid var(--border); }
+
+.card { background: var(--surface-1); border: 1px solid var(--border); border-radius: 14px; padding: 22px 24px; }
+.card h2 { font-size: 14px; font-weight: 700; margin: 0 0 3px; }
+.card .card-desc { color: var(--text-secondary); font-size: 12.5px; margin: 0 0 16px; line-height: 1.5; }
+
+.callout { background: var(--warning-bg); border: 1px solid var(--warning); border-radius: 10px; padding: 14px 16px; font-size: 12.5px; color: var(--text-primary); line-height: 1.6; }
+.callout b { color: var(--warning); }
+
+.stat-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.stat-tile { background: var(--surface-2); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; }
+.stat-tile .label { font-size: 10.5px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 5px; }
+.stat-tile .value { font-size: 22px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.stat-tile .sub { font-size: 11.5px; margin-top: 3px; color: var(--text-secondary); }
+@media (max-width: 640px) { .stat-row { grid-template-columns: repeat(2,1fr); } }
+
+.chart-legend { display: flex; gap: 16px; font-size: 12px; color: var(--text-secondary); margin-bottom: 10px; flex-wrap: wrap; }
+.chart-legend .item { display: flex; align-items: center; gap: 6px; }
+.chart-legend .swatch { width: 10px; height: 10px; border-radius: 2px; }
+.bars-chart { display: flex; align-items: flex-end; gap: 14px; height: 220px; border-bottom: 1px solid var(--baseline); padding: 0 4px; position: relative; }
+.bars-chart .gridline { position: absolute; left: 0; right: 0; height: 1px; background: var(--gridline); }
+.subject-group { display: flex; align-items: flex-end; gap: 3px; flex: 1; height: 100%; position: relative; }
+.subject-group .metric-bar { flex: 1; border-radius: 2px 2px 0 0; position: relative; min-width: 5px; cursor: default; }
+.chart-x-labels { display: flex; gap: 14px; padding: 6px 4px 0; }
+.chart-x-labels span { flex: 1; text-align: center; font-size: 10px; color: var(--text-muted); font-weight: 600; }
+
+.table-scroll { overflow-x: auto; margin-top: 14px; }
+table.acc-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+table.acc-table th { text-align: right; font-size: 10px; text-transform: uppercase; letter-spacing: 0.03em; color: var(--text-muted); font-weight: 600; padding: 6px 9px; border-bottom: 1px solid var(--gridline); }
+table.acc-table th:first-child, table.acc-table td:first-child { text-align: left; }
+table.acc-table td { text-align: right; padding: 6px 9px; border-bottom: 1px solid var(--gridline); font-variant-numeric: tabular-nums; }
+table.acc-table .erp-col { color: var(--series-erp); font-weight: 700; }
+
+.tooltip { position: fixed; background: var(--text-primary); color: var(--surface-1); font-size: 11.5px; padding: 7px 10px; border-radius: 7px; pointer-events: none; opacity: 0; transition: opacity 0.1s ease; z-index: 60; line-height: 1.5; max-width: 260px; transform: translate(-50%, -100%); }
+.tooltip b { display: block; margin-bottom: 2px; }
+
+footer.caveat { font-size: 11.5px; color: var(--text-muted); line-height: 1.6; }
+footer.caveat b { color: var(--text-secondary); }
+
+.tabs { display: flex; gap: 6px; }
+.tab-btn { font: inherit; font-size: 13px; font-weight: 700; padding: 9px 16px; border-radius: 9px; border: 1px solid var(--border); background: var(--surface-1); color: var(--text-secondary); cursor: pointer; }
+.tab-btn[aria-selected="true"] { background: var(--accent); color: white; border-color: var(--accent); }
+.tab-panel { display: none; flex-direction: column; gap: 18px; }
+.tab-panel.active { display: flex; }
+
+.picker-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 14px; }
+.picker-row label { font-size: 11.5px; color: var(--text-muted); font-weight: 600; margin-right: 4px; }
+.picker-row select { font: inherit; font-size: 13px; padding: 7px 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface-2); color: var(--text-primary); }
+.sentence-content { font-size: 13px; color: var(--text-secondary); margin-bottom: 4px; padding: 10px 12px; background: var(--surface-2); border-radius: 8px; border: 1px solid var(--border); }
+.sentence-content b { color: var(--text-primary); }
+.sentence-note { font-size: 11px; color: var(--text-muted); margin-bottom: 14px; }
+
+.stage-legend-row { display: flex; gap: 18px; flex-wrap: wrap; font-size: 12px; color: var(--text-secondary); margin-bottom: 16px; }
+.stage-legend-row .item { display: flex; align-items: center; gap: 6px; }
+.stage-legend-row .dot { width: 10px; height: 10px; border-radius: 3px; flex: 0 0 auto; }
+
+.timeline-axis { position: relative; height: 20px; margin-bottom: 2px; }
+.timeline-axis .tick { position: absolute; top: 0; font-size: 10px; color: var(--text-muted); transform: translateX(-50%); font-variant-numeric: tabular-nums; }
+.timeline-row { position: relative; margin-bottom: 8px; }
+.timeline-row .row-label { font-size: 11px; font-weight: 700; color: var(--text-secondary); margin-bottom: 3px; }
+.timeline-track { position: relative; height: 78px; background: var(--surface-2); border-radius: 8px; border: 1px solid var(--gridline); overflow: hidden; }
+.timeline-track.short { height: 30px; }
+.env-svg { display: block; width: 100%; height: 100%; }
+.bar { position: absolute; top: 5px; height: 68px; border-radius: 5px; cursor: default; }
+.bar.short { top: 4px; height: 22px; }
+.bar.st-matched_vwfa { background: var(--good-bg); border: 2px solid var(--good); }
+.bar.st-matched_wernicke_erp { background: rgba(27,138,107,0.16); border: 2px solid var(--series-erp); }
+.bar.st-missed { background: rgba(178,54,54,0.13); border: 2px solid #b23636; }
+</style>
+
+<div class="wrap">
+  <div>
+    <span class="eyebrow">ZuCo1 · NR+TSR · union of two independent detectors</span>
+    <h1>VWFA-only vs. VWFA + Wernicke-ERP (union), per subject</h1>
+    <p class="dek">Two fully independent detectors: VWFA uses envelope-threshold crossing
+    (<code>vwfa_word_detection/word_detection.py</code>, untouched); Wernicke-ERP uses genuine
+    ERP analysis &mdash; band-passed signal, sign preserved, scored across all 4
+    <code>ERP_COMPONENTS</code> windows (P1/N170/N250/N400) per candidate, latency-corrected back
+    to an estimated word onset (<code>vwfa_wernicke_word_detection/wernicke_erp_detection.py</code>).
+    They're combined by <b>union, not confirmation</b>: a Wernicke-ERP marker is added only if it
+    doesn't already overlap a VWFA marker, so it can only ever catch words VWFA missed, never
+    duplicate or override one VWFA already found (<code>combine.py</code>).</p>
+  </div>
+
+  <div class="tabs" role="tablist">
+    <button class="tab-btn" role="tab" aria-selected="true" data-tab="accuracy">Per-subject accuracy</button>
+    <button class="tab-btn" role="tab" aria-selected="false" data-tab="sentences">Sentence diagnostics (60)</button>
+  </div>
+
+  <div class="tab-panel active" id="panel-accuracy">
+    <div class="callout">
+      <b>Headline finding:</b> the union added very little &mdash; only <span id="added-count"></span>
+      extra correct words out of <span id="true-total"></span> true words overall
+      (<span id="added-pct"></span> recall gain). Why: VWFA alone already places a &plusmn;200ms marker
+      around ~640 candidates per ~285s block &mdash; roughly <b>90% of the block's total timeline</b> is
+      already covered by some VWFA marker, leaving very little uncovered time for a second detector to
+      add anything under a purely temporal-exclusion union rule.
+    </div>
+
+    <section class="card">
+      <h2>Overall, VWFA-only vs. combined</h2>
+      <div class="stat-row" id="overall-stats"></div>
+    </section>
+
+    <section class="card">
+      <h2>Recall per subject</h2>
+      <p class="card-desc">Hover a bar for exact values. The Wernicke-ERP contribution is barely
+      visible at this scale for most subjects &mdash; that's the finding, not a rendering issue.</p>
+      <div class="chart-legend" id="chart-legend"></div>
+      <div class="bars-chart" id="bars-chart"></div>
+      <div class="chart-x-labels" id="chart-x-labels"></div>
+      <div class="table-scroll">
+        <table class="acc-table" id="acc-table"></table>
+      </div>
+    </section>
+
+    <footer class="caveat">
+      <b>Where the Wernicke-ERP addition helped most:</b> ZJS's NR block 1 (the ~42-minute
+      anomalous block flagged earlier this session) alone contributed 115 of the 283 total
+      Wernicke-ERP-sourced markers written across all subjects/blocks &mdash; a much longer
+      recording gives the union rule more uncovered time to work with. <b>Design note:</b> the
+      Wernicke-ERP detector only keeps the top decile of candidates by combined ERP-component
+      strength (<code>config.LOCAL_CALIB_HIGH_PCT</code>) and a fixed 400ms N400-latency correction
+      &mdash; both are single, un-tuned choices; a looser accept threshold or per-candidate latency
+      (rather than one fixed value) might change this balance, untested here.
+    </footer>
+  </div>
+
+  <div class="tab-panel" id="panel-sentences">
+    <section class="card">
+      <h2>Pick a subject and sentence</h2>
+      <p class="card-desc">Same 60 sentences (5 random NR sentences per subject, seed-fixed, &ge;6
+      fixated words) as the VWFA-only diagnostic, so the two artifacts are directly comparable.
+      Matching uses the same exclusive 1:1 greedy overlap rule as the accuracy numbers above (a
+      Wernicke-ERP marker only counts if it doesn't overlap a VWFA marker), applied across the whole
+      block, not just the visible sentence window.</p>
+      <div class="picker-row">
+        <label for="subject-select">Subject</label>
+        <select id="subject-select"></select>
+        <label for="sentence-select">Sentence</label>
+        <select id="sentence-select"></select>
+      </div>
+      <div class="sentence-content" id="sentence-content"></div>
+      <div class="sentence-note">Words are listed in first-fixation order, not sentence word order.
+      Wernicke-ERP matches are rare by design (see the accuracy tab) &mdash; most sentences will show
+      zero teal words, which is the expected outcome, not missing data.</div>
+
+      <div class="stage-legend-row" id="stage-legend-row"></div>
+
+      <div class="timeline-row">
+        <div class="row-label">Ground-truth words</div>
+        <div class="timeline-track short" id="track-words"></div>
+      </div>
+      <div class="timeline-axis" id="timeline-axis"></div>
+      <div class="timeline-row">
+        <div class="row-label">VWFA envelope (dashed = medium-high threshold, dotted = very-high)</div>
+        <div class="timeline-track" id="track-envelope"></div>
+      </div>
+      <div class="timeline-row">
+        <div class="row-label">Markers (VWFA candidates + surviving Wernicke-ERP candidates)</div>
+        <div class="timeline-track short" id="track-markers"></div>
+      </div>
+    </section>
+  </div>
+
+  <div class="tooltip" id="tooltip"></div>
+</div>
+
+<script>
+const VWFA_ONLY = __VWFA_ONLY_JSON__;
+const COMBINED = __COMBINED_JSON__;
+
+function cssVar(name){ return getComputedStyle(document.body).getPropertyValue(name).trim(); }
+const tooltip = document.getElementById('tooltip');
+function showTip(e, html){ tooltip.innerHTML = html; tooltip.style.left = e.clientX+'px'; tooltip.style.top=(e.clientY-12)+'px'; tooltip.style.opacity='1'; }
+function moveTip(e){ tooltip.style.left = e.clientX+'px'; tooltip.style.top=(e.clientY-12)+'px'; }
+function hideTip(){ tooltip.style.opacity = '0'; }
+
+(function renderOverall(){
+  const vwfaTotal = VWFA_ONLY.reduce((a,r)=>({true_words:a.true_words+r.true_words, predicted_words:a.predicted_words+r.predicted_words, matched:a.matched+r.matched}), {true_words:0,predicted_words:0,matched:0});
+  const combTotal = COMBINED.reduce((a,r)=>({true_words:a.true_words+r.true_words, predicted_words:a.predicted_words+r.predicted_words, matched:a.matched+r.matched, matched_erp:a.matched_erp+r.matched_from_wernicke_erp}), {true_words:0,predicted_words:0,matched:0,matched_erp:0});
+
+  const vwfaRecall = vwfaTotal.matched/vwfaTotal.true_words;
+  const combRecall = combTotal.matched/combTotal.true_words;
+  const addedCount = combTotal.matched_erp;
+  const addedPct = (combRecall - vwfaRecall) * 100;
+
+  document.getElementById('added-count').textContent = addedCount;
+  document.getElementById('true-total').textContent = combTotal.true_words.toLocaleString();
+  document.getElementById('added-pct').textContent = '+' + addedPct.toFixed(2) + 'pp';
+
+  const tiles = [
+    { label: 'VWFA-only recall', value: (vwfaRecall*100).toFixed(1)+'%' },
+    { label: 'Combined recall', value: (combRecall*100).toFixed(1)+'%', sub: '+'+addedPct.toFixed(2)+'pp' },
+    { label: 'Wernicke-ERP-only matches', value: addedCount, sub: 'of '+combTotal.true_words.toLocaleString()+' true words' },
+    { label: 'Extra predictions added', value: (combTotal.predicted_words - vwfaTotal.predicted_words).toLocaleString(), sub: 'vs. VWFA-only' },
+  ];
+  document.getElementById('overall-stats').innerHTML = tiles.map(t => `
+    <div class="stat-tile"><div class="label">${t.label}</div><div class="value">${t.value}</div>${t.sub?`<div class="sub">${t.sub}</div>`:''}</div>`).join('');
+})();
+
+(function renderChart(){
+  const colors = { vwfa: cssVar('--series-vwfa'), combined: cssVar('--series-combined') };
+  const chart = document.getElementById('bars-chart');
+  [20,40,60,80].forEach(p => { const gl=document.createElement('div'); gl.className='gridline'; gl.style.bottom=p+'%'; chart.appendChild(gl); });
+
+  document.getElementById('chart-legend').innerHTML = `
+    <div class="item"><span class="swatch" style="background:${colors.vwfa}"></span>VWFA-only recall</div>
+    <div class="item"><span class="swatch" style="background:${colors.combined}"></span>Combined recall</div>`;
+
+  const vwfaBySubj = Object.fromEntries(VWFA_ONLY.map(r => [r.subject, r]));
+  const labels = document.getElementById('chart-x-labels');
+
+  COMBINED.forEach(c => {
+    const v = vwfaBySubj[c.subject];
+    const group = document.createElement('div'); group.className = 'subject-group';
+    [['vwfa', v.recall], ['combined', c.recall]].forEach(([key, val]) => {
+      const bar = document.createElement('div'); bar.className = 'metric-bar';
+      bar.style.height = (val*100) + '%'; bar.style.background = colors[key];
+      bar.addEventListener('mouseenter', e => showTip(e, `<b>${c.subject}</b> — ${key} recall: ${(val*100).toFixed(1)}%` + (key==='combined' ? `<br>+${c.matched_from_wernicke_erp} from Wernicke-ERP` : '')));
+      bar.addEventListener('mousemove', moveTip); bar.addEventListener('mouseleave', hideTip);
+      group.appendChild(bar);
+    });
+    chart.appendChild(group);
+    const lbl = document.createElement('span'); lbl.textContent = c.subject; labels.appendChild(lbl);
+  });
+
+  let html = '<thead><tr><th>Subject</th><th>True</th><th>VWFA-only recall</th><th>Combined recall</th><th>&Delta;</th><th>Matched via Wernicke-ERP</th></tr></thead><tbody>';
+  COMBINED.forEach(c => {
+    const v = vwfaBySubj[c.subject];
+    const delta = (c.recall - v.recall) * 100;
+    html += `<tr><td>${c.subject}</td><td>${c.true_words}</td><td>${(v.recall*100).toFixed(1)}%</td><td>${(c.recall*100).toFixed(1)}%</td><td>+${delta.toFixed(2)}pp</td><td class="erp-col">${c.matched_from_wernicke_erp}</td></tr>`;
+  });
+  html += '</tbody>';
+  document.getElementById('acc-table').innerHTML = html;
+})();
+
+// ---------- tabs ----------
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.setAttribute('aria-selected', 'false'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    btn.setAttribute('aria-selected', 'true');
+    document.getElementById('panel-' + btn.dataset.tab).classList.add('active');
+  });
+});
+
+// ---------- sentence diagnostics ----------
+const SENTENCE_TRACES = __SENTENCE_TRACES_JSON__;
+
+const STAGE_META = {
+  matched_vwfa:         { cls: 'st-matched_vwfa', color: 'var(--good)', label: 'Matched by VWFA' },
+  matched_wernicke_erp: { cls: 'st-matched_wernicke_erp', color: cssVar('--series-erp') || '#1b8a6b', label: 'Matched by Wernicke-ERP (VWFA missed it)' },
+  missed:               { cls: 'st-missed', color: '#b23636', label: 'Missed by both' },
+};
+const STAGE_ORDER = ['matched_vwfa', 'matched_wernicke_erp', 'missed'];
+
+(function initSentenceViewer(){
+  const subjSelect = document.getElementById('subject-select');
+  const sentSelect = document.getElementById('sentence-select');
+
+  SENTENCE_TRACES.forEach((s, i) => {
+    const opt = document.createElement('option');
+    opt.value = i; opt.textContent = s.subject;
+    subjSelect.appendChild(opt);
+  });
+
+  function populateSentences(){
+    sentSelect.innerHTML = '';
+    const subj = SENTENCE_TRACES[subjSelect.value];
+    subj.sentences.forEach((se, i) => {
+      const opt = document.createElement('option');
+      const erpCount = se.stage_counts.matched_wernicke_erp || 0;
+      opt.value = i;
+      opt.textContent = `Block ${se.block} · ${se.true_words.length} words · ${se.stage_counts.matched_vwfa||0} vwfa` + (erpCount ? ` · ${erpCount} wernicke-erp` : '');
+      sentSelect.appendChild(opt);
+    });
+  }
+  subjSelect.addEventListener('change', () => { populateSentences(); renderSentence(); });
+  sentSelect.addEventListener('change', renderSentence);
+  populateSentences();
+
+  function resolveColor(v){
+    if (v.startsWith('var(')) return cssVar(v.slice(4,-1));
+    return v;
+  }
+
+  function renderSentence(){
+    const subj = SENTENCE_TRACES[subjSelect.value];
+    const se = subj.sentences[sentSelect.value];
+    const srate = subj.srate;
+
+    document.getElementById('sentence-content').innerHTML =
+      `<b>${subj.subject}</b>, block ${se.block}, sentence ${se.sentence_id} — "${se.content}"`;
+
+    const counts = se.stage_counts;
+    document.getElementById('stage-legend-row').innerHTML = STAGE_ORDER.map(s => `
+      <div class="item"><span class="dot" style="background:${resolveColor(STAGE_META[s].color)}"></span>
+      ${STAGE_META[s].label} <b>${counts[s]||0}</b></div>`).join('');
+
+    const winStart = se.window_start_sample, winEnd = se.window_end_sample;
+    const winSamples = winEnd - winStart;
+    const toPct = sample => ((sample - winStart) / winSamples) * 100;
+
+    const axis = document.getElementById('timeline-axis');
+    axis.innerHTML = '';
+    const durMs = winSamples / srate * 1000;
+    for (let i = 0; i <= 4; i++) {
+      const tick = document.createElement('div'); tick.className = 'tick';
+      tick.style.left = (i/4*100) + '%';
+      tick.textContent = Math.round(durMs * i / 4) + 'ms';
+      axis.appendChild(tick);
+    }
+
+    const trackWords = document.getElementById('track-words');
+    trackWords.innerHTML = '';
+    se.true_words.forEach(w => {
+      const meta = STAGE_META[w.stage];
+      const bar = document.createElement('div');
+      bar.className = 'bar short ' + meta.cls;
+      const l = toPct(w.onset_sample), r = toPct(w.onset_sample + w.duration_samples);
+      bar.style.left = l + '%'; bar.style.width = Math.max(r-l, 0.6) + '%';
+      bar.addEventListener('mouseenter', e => showTip(e, `<b>"${w.word_text}"</b>${meta.label}`));
+      bar.addEventListener('mousemove', moveTip); bar.addEventListener('mouseleave', hideTip);
+      trackWords.appendChild(bar);
+    });
+
+    const trackEnv = document.getElementById('track-envelope');
+    trackEnv.innerHTML = '';
+    const svgNS = "http://www.w3.org/2000/svg";
+    const svg = document.createElementNS(svgNS, 'svg');
+    svg.setAttribute('class', 'env-svg');
+    svg.setAttribute('viewBox', '0 0 1000 100');
+    svg.setAttribute('preserveAspectRatio', 'none');
+    const yMax = se.threshold.high_very_high * 1.6;
+    function envY(v){ return 100 - Math.min(v/yMax, 1)*100; }
+    let d = '';
+    se.envelope.forEach((v, i) => {
+      if (v === null) return;
+      const sample = winStart + i * se.envelope_step;
+      const x = toPct(sample) * 10;
+      const y = envY(v);
+      d += (d === '' ? 'M' : 'L') + x.toFixed(1) + ',' + y.toFixed(1);
+    });
+    const path = document.createElementNS(svgNS, 'path');
+    path.setAttribute('d', d); path.setAttribute('fill', 'none');
+    path.setAttribute('stroke', resolveColor('var(--series-vwfa)')); path.setAttribute('stroke-width', '1.6');
+    path.setAttribute('vector-effect', 'non-scaling-stroke');
+    [['low_high','4,3'], ['high_very_high','1,3']].forEach(([key, dash]) => {
+      const y = envY(se.threshold[key]);
+      const line = document.createElementNS(svgNS, 'line');
+      line.setAttribute('x1','0'); line.setAttribute('x2','1000');
+      line.setAttribute('y1', y); line.setAttribute('y2', y);
+      line.setAttribute('stroke', resolveColor('var(--text-muted)'));
+      line.setAttribute('stroke-width','1'); line.setAttribute('stroke-dasharray', dash);
+      line.setAttribute('vector-effect', 'non-scaling-stroke');
+      line.setAttribute('opacity','0.8');
+      svg.appendChild(line);
+    });
+    svg.appendChild(path);
+    trackEnv.appendChild(svg);
+
+    const trackMarkers = document.getElementById('track-markers');
+    trackMarkers.innerHTML = '';
+    (se.vwfa_markers || []).forEach(m => {
+      const l = toPct(m.start), r = toPct(m.end);
+      const tick = document.createElement('div');
+      tick.style.position = 'absolute'; tick.style.top = '4px'; tick.style.height = '22px';
+      tick.style.left = l + '%'; tick.style.width = Math.max(r-l, 0.6) + '%';
+      tick.style.background = resolveColor('var(--good)'); tick.style.opacity = '0.35';
+      tick.style.borderRadius = '3px';
+      tick.addEventListener('mouseenter', e => showTip(e, '<b>VWFA marker</b>'));
+      tick.addEventListener('mousemove', moveTip); tick.addEventListener('mouseleave', hideTip);
+      trackMarkers.appendChild(tick);
+    });
+    (se.wernicke_erp_markers || []).forEach(m => {
+      const l = toPct(m.start), r = toPct(m.end);
+      const tick = document.createElement('div');
+      tick.style.position = 'absolute'; tick.style.top = '4px'; tick.style.height = '22px';
+      tick.style.left = l + '%'; tick.style.width = Math.max(r-l, 0.6) + '%';
+      tick.style.background = resolveColor('var(--series-erp)'); tick.style.opacity = '0.55';
+      tick.style.borderRadius = '3px'; tick.style.border = '1px solid ' + resolveColor('var(--series-erp)');
+      tick.addEventListener('mouseenter', e => showTip(e, '<b>Wernicke-ERP marker</b>(survived the union exclusion vs. VWFA)'));
+      tick.addEventListener('mousemove', moveTip); tick.addEventListener('mouseleave', hideTip);
+      trackMarkers.appendChild(tick);
+    });
+  }
+
+  renderSentence();
+})();
+</script>

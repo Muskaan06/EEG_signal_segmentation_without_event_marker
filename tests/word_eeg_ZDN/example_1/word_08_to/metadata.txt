@@ -1,7 +1,0 @@
-Word index: 8
-Word text: to
-Bounding box (x1,y1,x2,y2): [572.765625, 77.0, 588.0, 90.0]
-Num fixations: 0
-EEG shape (channels x samples): (105, 0)
-Channels: 105
-EEG file: eeg.npy  (concatenated across all fixations)

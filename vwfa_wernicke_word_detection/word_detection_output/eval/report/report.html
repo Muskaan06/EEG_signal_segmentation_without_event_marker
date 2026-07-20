@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Detecting Word-Reading from Brain Signals — Project Report</title>
+<style>
+  @page {
+    size: A4;
+    margin: 22mm 18mm 22mm 18mm;
+    @bottom-center {
+      content: counter(page) " / " counter(pages);
+      font-family: 'Source Sans', system-ui, sans-serif;
+      font-size: 9px;
+      color: #8a8880;
+    }
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    font-family: 'Source Sans', -apple-system, "Segoe UI", system-ui, sans-serif;
+    color: #1c1b17;
+    font-size: 11px;
+    line-height: 1.55;
+    background: #ffffff;
+  }
+  .cover {
+    height: 253mm;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    page-break-after: always;
+  }
+  .cover .kicker {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #2a5fb0;
+    margin-bottom: 18px;
+  }
+  .cover h1 {
+    font-size: 34px;
+    font-weight: 800;
+    line-height: 1.18;
+    margin: 0 0 18px;
+    letter-spacing: -0.015em;
+    max-width: 15ch;
+  }
+  .cover .subtitle {
+    font-size: 15px;
+    color: #4c4a42;
+    max-width: 46ch;
+    line-height: 1.6;
+    margin-bottom: 40px;
+  }
+  .cover .meta {
+    font-size: 11px;
+    color: #6f6d63;
+    border-top: 1px solid #ddd9cc;
+    padding-top: 14px;
+    max-width: 60ch;
+  }
+  .cover .meta div { margin-bottom: 4px; }
+  .cover .meta b { color: #1c1b17; }
+
+  h1.section {
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    margin: 0 0 4px;
+    padding-top: 4px;
+    color: #14140f;
+  }
+  .section-num {
+    font-size: 11px;
+    font-weight: 700;
+    color: #2a5fb0;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+    display: block;
+  }
+  h2 {
+    font-size: 14px;
+    font-weight: 700;
+    margin: 22px 0 8px;
+    color: #14140f;
+  }
+  h3 {
+    font-size: 12px;
+    font-weight: 700;
+    margin: 16px 0 6px;
+    color: #14140f;
+  }
+  p { margin: 0 0 10px; }
+  .lede {
+    font-size: 12.5px;
+    color: #4c4a42;
+    margin-bottom: 18px;
+    line-height: 1.6;
+  }
+  ul, ol { margin: 0 0 12px; padding-left: 20px; }
+  li { margin-bottom: 5px; }
+  section { page-break-inside: avoid; }
+  .section-break { page-break-before: always; }
+
+  .callout {
+    background: #f2f6fb;
+    border-left: 3px solid #2a5fb0;
+    border-radius: 4px;
+    padding: 10px 14px;
+    margin: 12px 0;
+    font-size: 10.5px;
+    color: #2c2c26;
+  }
+  .callout b { color: #1c4d99; }
+  .callout.finding {
+    background: #fff6e8;
+    border-left-color: #a86a00;
+  }
+  .callout.finding b { color: #8a5800; }
+  .callout.win {
+    background: #eefaf0;
+    border-left-color: #0ca30c;
+  }
+  .callout.win b { color: #0a8a0a; }
+
+  .analogy {
+    font-style: italic;
+    color: #5c5a50;
+    font-size: 10.5px;
+    margin: 6px 0 12px;
+    padding-left: 12px;
+    border-left: 2px solid #ddd9cc;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 10px;
+    margin: 10px 0 16px;
+  }
+  th {
+    text-align: right;
+    font-size: 8.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: #8a8880;
+    font-weight: 700;
+    padding: 5px 8px;
+    border-bottom: 1.5px solid #1c1b17;
+  }
+  th:first-child, td:first-child { text-align: left; }
+  td {
+    text-align: right;
+    padding: 5px 8px;
+    border-bottom: 1px solid #e4e1d4;
+    font-variant-numeric: tabular-nums;
+  }
+  tr.total td { font-weight: 700; border-top: 1.5px solid #1c1b17; }
+  td.pos { color: #0a8a0a; font-weight: 700; }
+  td.neg { color: #b23636; }
+
+  code {
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 0.92em;
+    background: #f2f0e6;
+    padding: 1px 4px;
+    border-radius: 3px;
+  }
+
+  .diagram {
+    display: flex;
+    gap: 6px;
+    margin: 14px 0;
+    align-items: stretch;
+  }
+  .diagram .step {
+    flex: 1;
+    background: #f7f6f0;
+    border: 1px solid #ddd9cc;
+    border-radius: 6px;
+    padding: 8px 9px;
+    font-size: 9px;
+    line-height: 1.4;
+  }
+  .diagram .step .n {
+    display: inline-block;
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: #2a5fb0;
+    color: white;
+    font-size: 8px;
+    font-weight: 700;
+    text-align: center;
+    line-height: 14px;
+    margin-bottom: 4px;
+  }
+  .diagram .arrow {
+    align-self: center;
+    color: #bab6a4;
+    font-size: 13px;
+  }
+
+  .barchart { margin: 14px 0 18px; }
+  .barrow { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+  .barrow .label { width: 108px; font-size: 9.5px; color: #4c4a42; text-align: right; flex-shrink: 0; }
+  .barrow .track { flex: 1; background: #f0efe6; border-radius: 3px; height: 14px; position: relative; }
+  .barrow .fill { height: 100%; border-radius: 3px; }
+  .barrow .fill.blue { background: #2a5fb0; }
+  .barrow .fill.grey { background: #a9a696; }
+  .barrow .fill.green { background: #0ca30c; }
+  .barrow .val { width: 78px; font-size: 9.5px; font-weight: 700; color: #1c1b17; }
+
+  .glossary dt { font-weight: 700; font-size: 10.5px; margin-top: 8px; }
+  .glossary dd { margin: 2px 0 0; font-size: 10px; color: #4c4a42; }
+
+  footer.pagefoot {
+    font-size: 8.5px;
+    color: #bab6a4;
+  }
+</style>
+</head>
+<body>
+
+<div class="cover">
+  <div class="kicker">EEG Research &middot; Word-Reading Detection</div>
+  <h1>Detecting Word-Reading Events from Brain Signals</h1>
+  <div class="subtitle">A plain-language account of how we built, tested, and combined two
+  independent methods for spotting the moment a word is being read, using nothing but raw EEG
+  &mdash; and how we verified the results without eye-tracking data at inference time.</div>
+  <div class="meta">
+    <div><b>Dataset:</b> ZuCo1 (12 subjects, Normal Reading + Task-Specific Reading), plus a
+    single self-contained validation block for a second subject (YHS)</div>
+    <div><b>Ground truth source:</b> eye-tracking-derived word onset times, recovered
+    independently from the raw EEG's own event markers</div>
+    <div><b>Methods covered:</b> VWFA envelope detection, Wernicke-area ERP detection, and their
+    combination</div>
+  </div>
+</div>
+
+<section>
+  <span class="section-num">1</span>
+  <h1 class="section">What we were trying to do</h1>
+  <p class="lede">The goal is simple to state and hard to do: looking only at a stream of raw
+  EEG (electrical brain activity recorded from the scalp), can we tell <i>exactly when</i> a
+  person is reading a specific word &mdash; without using their eye movements at all?</p>
+
+  <p>Normally, researchers know when someone is reading a word because they track where the
+  person's eyes are pointing (eye-tracking). That works well, but it needs extra hardware and
+  doesn't tell you anything about what's happening inside the brain. We wanted to see whether the
+  brain signal itself carries enough information to reconstruct that same timing &mdash; which
+  would mean, in principle, word-by-word reading could be tracked from EEG alone.</p>
+
+  <p>To do that fairly, we needed two things: (1) one or more detectors that only look at EEG and
+  guess "a word is being read right now," and (2) an independent, trustworthy answer key
+  ("ground truth") saying when words were <i>actually</i> read, so we can grade the detectors.
+  Building that answer key turned out to be its own small project, described in Section 2.</p>
+</section>
+
+<section>
+  <span class="section-num">2</span>
+  <h1 class="section">Building the answer key: how do we know when a word was really read?</h1>
+
+  <p>The EEG recordings we used come from a public dataset (ZuCo) where people read real
+  sentences while wearing both an EEG cap and an eye-tracker. The eye-tracker data tells us,
+  precisely, when someone's eyes landed on each word and for how long. That's our ground truth
+  &mdash; but there's a catch: the eye-tracker and the EEG recorder are two separate machines with
+  two separate clocks, and by default there's no simple formula to line up "eye-tracker time" with
+  "EEG time."</p>
+
+  <div class="analogy">Think of it like having two stopwatches that were started at slightly
+  different moments, with no shared "zero." You can't just compare their readings directly.</div>
+
+  <h2>The trick: match the actual signal, not the clock</h2>
+  <p>Instead of trying to synchronize the two clocks, we used a more reliable shortcut. The
+  dataset's raw EEG file already contains, hidden inside its own event log, brief pulses (called
+  "triggers") that mark exactly when each sentence started and ended &mdash; on the EEG's own
+  timeline, with no ambiguity. Separately, the dataset's own analysis files include, for every
+  single word, a short raw EEG snippet that was recorded during the very first moment someone's
+  eyes fixated on that word.</p>
+
+  <p>That word-sized snippet is a small, exact copy of a piece of the full sentence recording.
+  So we can find precisely where it belongs by sliding it along the full recording and checking
+  for a byte-for-byte match &mdash; like fitting a jigsaw-puzzle piece into the one spot where its
+  edges line up perfectly. Once we find that spot, we know the exact instant (down to the
+  individual EEG sample, i.e. 1/500th of a second) that word's reading began, expressed on the
+  same clock the raw EEG file itself uses.</p>
+
+  <div class="diagram">
+    <div class="step"><span class="n">1</span>Find each sentence's start/end pulses in the EEG's
+    own event log</div>
+    <div class="arrow">&rarr;</div>
+    <div class="step"><span class="n">2</span>Take the tiny EEG snippet recorded during a word's
+    first eye-fixation</div>
+    <div class="arrow">&rarr;</div>
+    <div class="step"><span class="n">3</span>Search for where that snippet exactly matches
+    inside the sentence's full recording</div>
+    <div class="arrow">&rarr;</div>
+    <div class="step"><span class="n">4</span>That match location = the word's true onset time,
+    on the EEG's own clock</div>
+  </div>
+
+  <p>This method needs no clock synchronization and no guesswork &mdash; it's an exact match, so
+  either it succeeds (and we get a precise, trustworthy timestamp) or it fails cleanly (and we
+  skip that word rather than guess). We validated this approach on real data before trusting it
+  for grading: across many sentences, it consistently reconstructed timings that matched
+  independent structural checks.</p>
+
+  <p>We used two flavors of this same idea over the course of the project:</p>
+  <ul>
+    <li><b>Across all 12 subjects</b> (the main evaluation): we reconstructed true word onset
+    times for every subject, task, and recording block, using the method above.</li>
+    <li><b>One extra, fully self-contained example block</b> (subject "YHS"): a version of the
+    same method was run ahead of time to produce a single file containing 625 words with verified
+    ground-truth timing, bundled together with its own raw EEG. We used this as a fast,
+    easy-to-inspect example for step-by-step debugging (Section 5), separate from the main
+    12-subject evaluation.</li>
+  </ul>
+</section>
+
+<div class="section-break"></div>
+
+<section>
+  <span class="section-num">3</span>
+  <h1 class="section">Method 1: detecting words from the "Visual Word Form Area"</h1>
+
+  <p>The first detector looks at one specific, small patch of scalp electrodes positioned over a
+  brain region researchers associate with recognizing written word-shapes, sometimes called the
+  Visual Word Form Area, or <b>VWFA</b> for short. The working idea (a hypothesis we're testing,
+  not an established fact) is that this region's electrical activity rises and falls in a
+  recognizable pattern whenever a word is being visually processed.</p>
+
+  <h2>How the detector works, step by step</h2>
+  <ol>
+    <li><b>Average a handful of nearby electrodes</b> into one combined signal for that brain
+    region, to reduce noise.</li>
+    <li><b>Smooth the signal into an "envelope"</b> &mdash; a curve that tracks how strong the
+    activity is at each moment, ignoring the signal's rapid up-and-down wiggles and just showing
+    its overall intensity.</li>
+    <li><b>Sort every moment into one of three activity levels</b> &mdash; low, medium-high, or
+    very-high &mdash; using cut-off points calculated fresh from that recording's own data
+    (never a fixed number chosen in advance), so the thresholds adapt to each person and each
+    recording session.</li>
+    <li><b>Flag "medium-high" stretches that last long enough</b> (at least 40 milliseconds) as
+    candidate word-reading moments, and find the strongest instant within each stretch.</li>
+    <li><b>Thin out candidates that are too close together</b> &mdash; if two candidates are
+    within a quarter of a second of each other, only the stronger one survives, since a person
+    can't realistically be starting two new words that quickly.</li>
+    <li><b>Draw a small time window</b> (0.2 seconds before to 0.2 seconds after) around each
+    surviving candidate &mdash; that window is the detector's final answer: "a word was being
+    read around here."</li>
+  </ol>
+
+  <div class="analogy">It's a bit like watching a seismograph and flagging every tremor that's
+  strong enough and lasts long enough to be a real earthquake, rather than background noise
+  &mdash; then making sure you don't report the same earthquake twice.</div>
+</section>
+
+<section>
+  <span class="section-num">4</span>
+  <h1 class="section">An early idea that didn't pay off: requiring a second brain region to agree</h1>
+
+  <p>Our first working version didn't stop at Step 6 above. It added one more rule: a candidate
+  only counted as a real detection if a <i>second</i> brain region &mdash; associated with
+  understanding language, known as <b>Wernicke's area</b> &mdash; also showed elevated activity,
+  in a narrow window 100&ndash;150 milliseconds after the first region's peak. The idea was that
+  requiring two independent brain regions to agree should filter out false alarms.</p>
+
+  <h2>What we found when we checked it word-by-word</h2>
+  <p>To find out whether this "confirmation" rule was actually helping, we took one full recording
+  block with 625 words of trustworthy ground truth and traced every single word through every
+  stage of the detector, recording exactly where each one succeeded or failed:</p>
+
+  <table>
+    <thead><tr><th>What happened to the word</th><th>Count</th><th>% of 625</th></tr></thead>
+    <tbody>
+      <tr><td>Never showed a strong-enough signal at all</td><td>26</td><td>4.2%</td></tr>
+      <tr><td>Signal was strong, but too brief</td><td>19</td><td>3.0%</td></tr>
+      <tr><td>A real candidate existed, but a nearby stronger one won</td><td>120</td><td>19.2%</td></tr>
+      <tr><td><b>Thrown out by the "second region must agree" rule</b></td><td><b>111</b></td><td><b>17.8%</b></td></tr>
+      <tr><td>Detected, but the timing window missed the word slightly</td><td>5</td><td>0.8%</td></tr>
+      <tr><td>Correctly detected</td><td>344</td><td>55.0%</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout finding">
+    <b>The finding:</b> the confirmation rule was throwing away more correctly-found words
+    (17.8%) than the two earlier "the signal itself wasn't good enough" stages put together
+    (7.2%). It was doing more harm than good.
+  </div>
+
+  <p>Why? Two reasons. First, the 100&ndash;150ms window is quite narrow (about a twentieth of a
+  second) and has no flexibility &mdash; if the real response from that second region happened
+  slightly earlier or later, the rule simply missed it. Second, Wernicke's area was represented by
+  only three scalp electrodes (the smallest, noisiest region we used), and because its own
+  "elevated" threshold was calculated to cover about half of all its activity by definition,
+  whether a given narrow time-window happened to land on an "elevated" stretch was often close to
+  a coin flip &mdash; not a reliable, meaningful confirmation.</p>
+
+  <p>We tested removing the rule entirely and re-scored every one of the 12 subjects:</p>
+
+  <div class="barchart">
+    <div class="barrow"><div class="label">With confirmation</div><div class="track"><div class="fill grey" style="width:58.2%"></div></div><div class="val">58.2% (F1)</div></div>
+    <div class="barrow"><div class="label">Without confirmation</div><div class="track"><div class="fill blue" style="width:64.4%"></div></div><div class="val">64.4% (F1)</div></div>
+  </div>
+
+  <div class="callout win">
+    <b>Result:</b> removing the confirmation step improved the overall balance of correct-vs-missed
+    detections (F1 score, a standard way of combining "how many detections were real" and "how many
+    real words got detected" into one number) for <b>every one of the 12 subjects individually</b>,
+    by between 3 and 11 points. Recall (the share of real words actually found) jumped from 56.5%
+    to 72.8% overall, at a small cost to precision (the share of detections that were real words),
+    which dropped from 60.1% to 57.7%.
+  </div>
+</section>
+
+<div class="section-break"></div>
+
+<section>
+  <span class="section-num">5</span>
+  <h1 class="section">Method 2: a genuinely different way of using Wernicke's area</h1>
+
+  <p>Removing the confirmation rule didn't mean giving up on Wernicke's area &mdash; it meant the
+  first attempt at using it (requiring both regions to agree, on every single detection) was the
+  wrong design. The next idea was to build a completely separate, independent detector for
+  Wernicke's area, using a different kind of signal analysis than the VWFA detector &mdash;
+  something called <b>ERP analysis</b>.</p>
+
+  <h2>What is an ERP?</h2>
+  <p>ERP stands for "event-related potential." When the brain processes something meaningful
+  &mdash; like recognizing and understanding a word &mdash; it tends to produce a characteristic
+  up-and-down wiggle in the electrical signal a fixed amount of time later, almost like a
+  fingerprint. Researchers have named several of these wiggles based on when they occur and
+  whether they go up or down: for instance, a dip around 300&ndash;500 milliseconds after a
+  meaningful word (called "N400") is one of the best-known signatures of the brain doing the work
+  of understanding a word's meaning.</p>
+
+  <div class="analogy">If the VWFA method (Section 3) is like watching for a loud noise, ERP
+  analysis is more like listening for a specific, recognizable little tune that always plays a
+  fixed number of beats after something meaningful happens.</div>
+
+  <h2>How the new detector works</h2>
+  <ol>
+    <li><b>Look at Wernicke's area signal directly</b> (unlike the VWFA method, we keep the
+    signal's up/down direction intact here, since these ERP "wiggles" are defined partly by which
+    way they point).</li>
+    <li><b>Find prominent dips</b> in the signal &mdash; candidate spots where an N400-like
+    response might be happening.</li>
+    <li><b>Work backwards to estimate when the word actually started.</b> Since this kind of
+    brain response shows up <i>after</i> the triggering word, not during it, we shift our guess
+    for "when did the word begin" back by about 400 milliseconds (the middle of the typical
+    300&ndash;500ms window) from each dip we find.</li>
+    <li><b>Double-check using multiple signatures, not just one.</b> Around each estimated word
+    onset, we measure four different well-known signatures (not just the 300&ndash;500ms one),
+    each linked to a different stage of recognizing a word, and combine their strengths into one
+    overall "how confident are we" score.</li>
+    <li><b>Keep only the strongest candidates</b> &mdash; the top 10%, by score, again using a
+    cutoff calculated fresh from that recording rather than a fixed number.</li>
+    <li><b>Thin out and window</b> the survivors exactly the same way as the VWFA method (Section
+    3, steps 5&ndash;6), so both detectors' final outputs are directly comparable.</li>
+  </ol>
+
+  <p>This detector was built as an entirely separate program from the VWFA detector, reusing the
+  VWFA code only by calling it (never copying or modifying it), so the two methods stay cleanly
+  independent and the original VWFA-only results remain untouched and reproducible.</p>
+</section>
+
+<section>
+  <span class="section-num">6</span>
+  <h1 class="section">Combining the two detectors: adding, not requiring agreement</h1>
+
+  <p>This time, the two detectors were combined the opposite way from Section 4's failed
+  experiment. Instead of requiring both to agree before accepting <i>any</i> detection, we let
+  each one work independently and then simply <b>added together</b> what each one found:</p>
+
+  <ul>
+    <li>Every word the VWFA detector found stays in the final list, no questions asked.</li>
+    <li>A word the Wernicke-ERP detector found is <b>added on top</b>, but only if it lands
+    somewhere the VWFA detector didn't already flag &mdash; so the second method can only ever
+    <i>rescue</i> words the first one missed. It can never cancel out or duplicate a VWFA
+    detection.</li>
+  </ul>
+
+  <div class="callout"><b>In short:</b> Section 4's rule was an "AND" (both must agree, or the
+  detection is thrown out). Section 6's rule is an "OR" (either one finding it is enough, and they
+  can never take a detection away from each other).</div>
+</section>
+
+<div class="section-break"></div>
+
+<section>
+  <span class="section-num">7</span>
+  <h1 class="section">Results</h1>
+
+  <h2>Overall, across all 12 subjects (both reading tasks combined)</h2>
+  <table>
+    <thead><tr><th>Version</th><th>True words</th><th>Detections made</th><th>Correctly matched</th><th>Precision</th><th>Recall</th><th>F1</th></tr></thead>
+    <tbody>
+      <tr><td>Original (VWFA + confirmation rule)</td><td>92,320</td><td>86,683</td><td>52,123</td><td>60.1%</td><td>56.5%</td><td>58.2%</td></tr>
+      <tr><td>VWFA only (confirmation rule removed)</td><td>92,320</td><td>116,549</td><td>67,248</td><td>57.7%</td><td>72.8%</td><td>64.4%</td></tr>
+      <tr class="total"><td>VWFA + Wernicke-ERP (combined)</td><td>92,320</td><td>116,832</td><td>67,311</td><td>57.6%</td><td>72.9%</td><td>64.4%</td></tr>
+    </tbody>
+  </table>
+
+  <p><b>Precision</b> answers "of everything the detector flagged, how much was actually a real
+  word?" <b>Recall</b> answers "of all the real words, how many did the detector actually find?"
+  <b>F1</b> is a single score that balances the two, so neither one can be gamed on its own (e.g.
+  a detector that flags the entire recording as "word being read" would have perfect recall but
+  terrible precision).</p>
+
+  <h2>The combination barely moved the numbers &mdash; and we know why</h2>
+  <div class="callout finding">
+    <b>Finding:</b> adding the Wernicke-ERP detector only rescued 65 extra correct words out of
+    92,320 total &mdash; a 0.07 percentage-point recall gain. The reason is mechanical, not a
+    flaw in the new detector: a typical 5-minute recording block gets roughly 640 VWFA detection
+    windows, each about 0.4 seconds wide. Laid end to end, that already covers <b>about 90% of the
+    entire recording's timeline</b>. There's very little "empty" time left over for a second,
+    add-only detector to contribute to.
+  </div>
+  <p>The one place it helped noticeably was an unusually long recording block (about 42 minutes,
+  compared to the typical 5&ndash;10 minutes) belonging to one subject &mdash; a much longer
+  recording naturally leaves more uncovered time, and that single block alone accounted for over
+  a third of all the extra words the combination found.</p>
+
+  <h2>Per-subject results</h2>
+  <table>
+    <thead><tr><th>Subject</th><th>True words</th><th>VWFA-only recall</th><th>Combined recall</th><th>Rescued by Wernicke-ERP</th></tr></thead>
+    <tbody>
+      <tr><td>ZAB</td><td>7,819</td><td>66.0%</td><td>66.0%</td><td>2</td></tr>
+      <tr><td>ZDM</td><td>7,124</td><td>69.4%</td><td>69.5%</td><td>4</td></tr>
+      <tr><td>ZDN</td><td>6,210</td><td>70.2%</td><td>70.3%</td><td>6</td></tr>
+      <tr><td>ZGW</td><td>6,855</td><td>72.3%</td><td>72.4%</td><td>3</td></tr>
+      <tr><td>ZJM</td><td>10,067</td><td>73.5%</td><td>73.5%</td><td>5</td></tr>
+      <tr><td>ZJN</td><td>10,615</td><td>83.1%</td><td>83.2%</td><td>10</td></tr>
+      <tr><td>ZJS</td><td>4,295</td><td>68.1%</td><td>68.3%</td><td>9</td></tr>
+      <tr><td>ZKB</td><td>6,650</td><td>68.6%</td><td>68.6%</td><td>3</td></tr>
+      <tr><td>ZKH</td><td>8,931</td><td>75.7%</td><td>75.8%</td><td>4</td></tr>
+      <tr><td>ZKW</td><td>10,428</td><td>79.1%</td><td>79.2%</td><td>7</td></tr>
+      <tr><td>ZMG</td><td>7,888</td><td>69.0%</td><td>69.1%</td><td>6</td></tr>
+      <tr><td>ZPH</td><td>5,438</td><td>67.2%</td><td>67.3%</td><td>6</td></tr>
+    </tbody>
+  </table>
+
+  <p>One subject (ZJS) stands out as consistently the weakest performer across every version of
+  the detector, largely explained by that one abnormally long recording block mentioned above,
+  which produces a flood of low-quality detections and drags precision down for that subject
+  specifically.</p>
+
+  <h2>Checking the work at the individual-sentence level</h2>
+  <p>Beyond the overall numbers, we also built a way to zoom into individual sentences and see,
+  word by word, which detector (if either) caught each one &mdash; using the same strict matching
+  rule as the headline numbers above (each detection can only be credited to one true word, never
+  spread across several nearby words). We sampled 5 random sentences from each of the 12 subjects
+  (60 sentences in total) and inspected them this way as a sanity check that the aggregate numbers
+  reflect what's really happening at the word level, not an artifact of how the numbers were
+  computed.</p>
+</section>
+
+<div class="section-break"></div>
+
+<section>
+  <span class="section-num">8</span>
+  <h1 class="section">What this means, and what we'd try next</h1>
+
+  <p>Two independent, EEG-only methods for detecting word-reading events both work meaningfully
+  better than chance, and removing an overly strict "confirmation" rule between them substantially
+  improved results without needing any new data or hardware. The two brain regions turned out to
+  be more useful <i>separately</i> than <i>jointly</i> in this design &mdash; requiring agreement
+  threw away good detections, while allowing either one to contribute independently kept all the
+  VWFA method's strengths and added a small amount more.</p>
+
+  <p>The Wernicke-ERP detector's contribution was real but small under the current design. Two
+  concrete ideas, not yet tried, could change that balance:</p>
+  <ul>
+    <li><b>Loosen how selective the Wernicke-ERP detector is</b> &mdash; it currently only keeps
+    its strongest 10% of candidates by score; allowing more through would surface more candidates
+    for the combination step to work with.</li>
+    <li><b>Let a strong Wernicke-ERP candidate compete in already-covered time</b>, rather than
+    being blocked automatically whenever a VWFA detection is nearby &mdash; some of VWFA's ~640
+    per-block detections are themselves false alarms, and a stronger nearby Wernicke-ERP candidate
+    might sometimes be the better answer for that particular moment.</li>
+  </ul>
+
+  <p>Both of these are genuine design choices with trade-offs (they'd likely increase recall
+  further, at some further cost to precision) rather than free improvements, and neither was
+  tested in this round of work.</p>
+</section>
+
+<div class="section-break"></div>
+
+<section>
+  <span class="section-num">Appendix</span>
+  <h1 class="section">Plain-language glossary</h1>
+  <dl class="glossary">
+    <dt>EEG (electroencephalography)</dt>
+    <dd>Recording electrical activity from the brain using electrodes placed on the scalp. Doesn't
+    require surgery; the signals are relatively weak and noisy compared to more invasive methods.</dd>
+
+    <dt>Envelope</dt>
+    <dd>A smoothed curve tracking a signal's overall intensity over time, with the fast up-and-down
+    wiggling removed &mdash; useful for asking "how strong is the activity right now," separate
+    from its exact shape.</dd>
+
+    <dt>ERP (event-related potential)</dt>
+    <dd>A characteristic, repeatable pattern in brain activity that shows up a predictable amount
+    of time after something meaningful happens &mdash; e.g. seeing a word, hearing a sound,
+    recognizing a face.</dd>
+
+    <dt>VWFA (Visual Word Form Area)</dt>
+    <dd>A brain region associated with recognizing the visual shape of written words, used here as
+    the source for the first, envelope-based detector.</dd>
+
+    <dt>Wernicke's area</dt>
+    <dd>A brain region associated with understanding language meaning, used here as the source for
+    both the (removed) confirmation rule and the new ERP-based detector.</dd>
+
+    <dt>Ground truth</dt>
+    <dd>A trustworthy, independently-verified answer key used to check whether a detector's guesses
+    are actually correct. Here, built from eye-tracking data cross-referenced against the raw EEG's
+    own timing markers.</dd>
+
+    <dt>Precision / Recall / F1</dt>
+    <dd>Standard ways of scoring a detector. Precision: of the things it flagged, how many were
+    real? Recall: of all the real things, how many did it find? F1: one number balancing both, so
+    a detector can't cheat by only optimizing one of them.</dd>
+
+    <dt>Refractory window / non-max suppression</dt>
+    <dd>A rule that prevents a detector from reporting the same event twice in quick succession by
+    keeping only the strongest candidate within a short time window.</dd>
+
+    <dt>Calibrated / percentile-based threshold</dt>
+    <dd>A cutoff value calculated fresh from each recording's own data (e.g. "the top 10% of
+    values"), rather than a single fixed number chosen in advance &mdash; so the detector adapts to
+    each person and each recording session automatically.</dd>
+  </dl>
+</section>
+
+</body>
+</html>
